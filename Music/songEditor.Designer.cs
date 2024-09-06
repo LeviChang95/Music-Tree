@@ -48,16 +48,18 @@
             addSongPanel.Controls.Add(tagCheckboxPanel);
             addSongPanel.Controls.Add(songTextBox);
             addSongPanel.Controls.Add(uploadButton);
-            addSongPanel.Location = new Point(12, 12);
+            addSongPanel.Location = new Point(10, 9);
+            addSongPanel.Margin = new Padding(3, 2, 3, 2);
             addSongPanel.Name = "addSongPanel";
-            addSongPanel.Size = new Size(445, 289);
+            addSongPanel.Size = new Size(389, 217);
             addSongPanel.TabIndex = 5;
             // 
             // cancelButton
             // 
-            cancelButton.Location = new Point(258, 243);
+            cancelButton.Location = new Point(226, 182);
+            cancelButton.Margin = new Padding(3, 2, 3, 2);
             cancelButton.Name = "cancelButton";
-            cancelButton.Size = new Size(74, 29);
+            cancelButton.Size = new Size(65, 22);
             cancelButton.TabIndex = 7;
             cancelButton.Text = "Cancel";
             cancelButton.UseVisualStyleBackColor = true;
@@ -65,9 +67,10 @@
             // 
             // confirmButton
             // 
-            confirmButton.Location = new Point(338, 243);
+            confirmButton.Location = new Point(296, 182);
+            confirmButton.Margin = new Padding(3, 2, 3, 2);
             confirmButton.Name = "confirmButton";
-            confirmButton.Size = new Size(79, 29);
+            confirmButton.Size = new Size(69, 22);
             confirmButton.TabIndex = 6;
             confirmButton.Text = "Confirm";
             confirmButton.UseVisualStyleBackColor = true;
@@ -75,52 +78,58 @@
             // 
             // artistTextBox
             // 
-            artistTextBox.Location = new Point(258, 51);
+            artistTextBox.Location = new Point(226, 38);
+            artistTextBox.Margin = new Padding(3, 2, 3, 2);
             artistTextBox.Name = "artistTextBox";
-            artistTextBox.Size = new Size(159, 27);
+            artistTextBox.Size = new Size(140, 23);
             artistTextBox.TabIndex = 5;
             artistTextBox.Text = "Artist Name";
             // 
             // filenameLabel
             // 
             filenameLabel.AutoSize = true;
-            filenameLabel.Location = new Point(93, 19);
+            filenameLabel.Location = new Point(81, 14);
             filenameLabel.Name = "filenameLabel";
-            filenameLabel.Size = new Size(32, 20);
+            filenameLabel.Size = new Size(25, 15);
             filenameLabel.TabIndex = 4;
             filenameLabel.Text = "File";
             // 
             // tagCheckboxPanel
             // 
-            tagCheckboxPanel.Location = new Point(16, 95);
+            tagCheckboxPanel.Location = new Point(14, 71);
+            tagCheckboxPanel.Margin = new Padding(3, 2, 3, 2);
             tagCheckboxPanel.Name = "tagCheckboxPanel";
-            tagCheckboxPanel.Size = new Size(401, 137);
+            tagCheckboxPanel.Size = new Size(351, 103);
             tagCheckboxPanel.TabIndex = 3;
             // 
             // songTextBox
             // 
-            songTextBox.Location = new Point(16, 50);
+            songTextBox.Location = new Point(14, 38);
+            songTextBox.Margin = new Padding(3, 2, 3, 2);
             songTextBox.Name = "songTextBox";
-            songTextBox.Size = new Size(236, 27);
+            songTextBox.Size = new Size(207, 23);
             songTextBox.TabIndex = 1;
             songTextBox.Text = "Song Name";
             // 
             // uploadButton
             // 
-            uploadButton.Location = new Point(16, 15);
+            uploadButton.Location = new Point(14, 11);
+            uploadButton.Margin = new Padding(3, 2, 3, 2);
             uploadButton.Name = "uploadButton";
-            uploadButton.Size = new Size(71, 29);
+            uploadButton.Size = new Size(62, 22);
             uploadButton.TabIndex = 0;
             uploadButton.Text = "Upload";
             uploadButton.UseVisualStyleBackColor = true;
+            uploadButton.Click += uploadButton_Click;
             // 
             // songEditor
             // 
-            AutoScaleDimensions = new SizeF(8F, 20F);
+            AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(470, 320);
+            ClientSize = new Size(411, 240);
             Controls.Add(addSongPanel);
             FormBorderStyle = FormBorderStyle.None;
+            Margin = new Padding(3, 2, 3, 2);
             Name = "songEditor";
             Text = "songEditor";
             addSongPanel.ResumeLayout(false);

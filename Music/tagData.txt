@@ -1,0 +1,4 @@
+root|Work*Green,Rest*Blue,Favourite Songs*Red
+Work|Study*Green,Gym*Yellow
+Rest|Relaxation*Purple,Gaming*Pink,Party*Orange
+Favourite Songs|Recommended*Orange

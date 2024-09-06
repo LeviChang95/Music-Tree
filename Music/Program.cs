@@ -5,40 +5,41 @@ using System.Linq;
 using System.IO;
 using System.Media;
 using static Music.Program;
+using System.Drawing.Text;
 
 namespace Music
 {
     internal static class Program
     {
-        /// <summary>
-        ///  The main entry point for the application.
-        /// </summary>
         [STAThread]
         static void Main()
         {
-
             LoadData();
-
-            RunFunctions();
-
-            // To customize application configuration such as set high DPI settings or default font,
-            // see https://aka.ms/applicationconfiguration.
             ApplicationConfiguration.Initialize();
-            Application.Run(new Form1());
-
-            
+            form1 = new Form1();
+            Application.Run(form1);
         }
 
-        public static Tag[] allTags = [];
-        public static Song[] allSongs = [];
+        //--------------------INTIALIZE VARIABLES--------------------
+
+        public static Tag root = new("root", Color.Gray);
+        public static List<Tag> allTags = [root];
+        public static List<Song> allSongs = [];
         public static Song? editSong = null;
+        public static Tag? editTag = null;
+        public static Form1 form1 = null;
+        public static Tag currentTag = root;
+
+        public static String songDataPath = @"..\..\..\songData.txt";
+        public static String tagDataPath = @"..\..\..\tagData.txt";
+
+        //--------------------SONG Class--------------------
 
         public class Song
         {
             public string name;
             public string artist;
             public string filePath;
-            public SoundPlayer track;
             public List<Tag> tags = [];
 
             public Song(string songName, string songArtist, string songFile)
@@ -46,7 +47,6 @@ namespace Music
                 name = songName;
                 artist = songArtist;
                 filePath = songFile;
-                track = new SoundPlayer(songFile);
             }
 
             public void addTags(Tag[] tagList)
@@ -66,17 +66,17 @@ namespace Music
                 tags.Add(tag);
             }
 
-            public void playTrack() { track.Play(); }
-            public void pauseTrack() { track.Stop(); }
-
             public void remove()
             {
                 for(int i = 0; i < tags.Count; i++)
                 {
                     tags[i].songs.Remove(this);
                 }
+                tags = [];
             }
         }
+
+        //--------------------TAG CLASS--------------------
 
         public class Tag
         {
@@ -84,34 +84,12 @@ namespace Music
             public Tag parent;
             public List<Tag> subtags = [];
             public List<Song> songs = [];
+            public Color colour = Color.Gray;
 
-            public Tag(string tagName)
+            public Tag(string tagName, Color tagColour)
             {
                 name = tagName;
-            }
-
-            public Tag(string tagName, List<Tag> tagSubtags, List<Song> tagSongs)
-            {
-                name = tagName;
-                subtags = tagSubtags;
-                for (int i = 0; i < tagSubtags.Count; i++)
-                    tagSubtags[i].parent = this;
-                songs = tagSongs;
-            }
-
-            // Return list containing all subtags and their subtags and so on
-            public List<Tag> getTags()
-            {
-                List<Tag> tempList = [];
-                return (getTagsHelper(tempList));
-            }
-            private List<Tag> getTagsHelper(List<Tag> list)
-            {
-                for (int i = 0; i < subtags.Count; i++)
-                    list.Add(subtags[i]);
-                for (int i = 0; i < subtags.Count; i++)
-                    list.Concat(subtags[i].getTagsHelper(list));
-                return list;
+                colour = tagColour;
             }
 
             public void addSubtag(Tag subtag)
@@ -121,7 +99,7 @@ namespace Music
             }
 
             public void addSongs(Song[] songList)
-            {
+            {             
                 for(int i = 0; i < songList.Length; i++)
                 {
                     if (!songs.Contains(songList[i]))
@@ -162,21 +140,6 @@ namespace Music
                 }
                 return tempList;
             }
-
-            public String getSongNames()
-            {
-                List<Song> list = this.getSongs();
-                String nameList = "";
-                if (list.Count != 0)
-                {
-                    nameList = nameList + list[0].name;
-                    for (int i = 1; i < list.Count; i++)
-                        nameList = nameList + ", " + list[i].name;
-                    return nameList;
-                }
-                else
-                    return nameList;
-            }
             
             public void cascadeDelete()
             {
@@ -185,7 +148,8 @@ namespace Music
                     subtags[i].cascadeDelete();
                 }
                 for (int i = 0; i < songs.Count; i++)
-                { 
+                {
+                    
                     if (songs[i].tags.Count == 1)
                         parent.addSongs([songs[i]]);
                     songs[i].tags.Remove(this);    
@@ -193,7 +157,7 @@ namespace Music
                 songs = [];
                 subtags = [];
                 parent.subtags.Remove(this);
-                
+                allTags.Remove(this);   
             }
 
             public void safeDelete()
@@ -201,8 +165,7 @@ namespace Music
                 
                 for (int i = 0; i < songs.Count; i++)
                 {
-                    if (songs[i].tags.Count == 1)
-                        parent.addSongs([songs[i]]);
+                    parent.addSongs([songs[i]]);
                     songs[i].tags.Remove(this);
                 }
                 for (int i = 0; i < subtags.Count; i++)
@@ -212,67 +175,165 @@ namespace Music
                 songs = [];
                 subtags = [];
                 parent.subtags.Remove(this);
+                allTags.Remove(this);
+
 
             }
 
+            public void remove()
+            {
+                for (int i = 0; i < songs.Count; i++)
+                {
+                    songs[i].tags.Remove(this);
+                }
+                songs = [];
+            }
         }
 
-        static Song song001 = new("I bet on losing dogs", "Mitski", "mp3");
-        static Song song002 = new("Your best american girl", "Mitski", "mp3");
-        static Song song003 = new("First love/late spring", "Mitski", "mp3");
-        static Song song004 = new("Apocalypse", "Cigarettes After Sex", "mp3");
-        static Song song005 = new("Sunsetz", "Cigarettes After Sex", "mp3");
-
-        public static Tag root = new("root");
-        static Tag sad = new("sad");
-        static Tag happy = new("happy");
-        static Tag other = new("other");
-        static Tag excited = new("excited");
-
-        static void RunFunctions()
-        {
-            root.addSubtag(happy);
-            root.addSubtag(sad);
-            root.addSubtag(other);
-            happy.addSubtag(excited);
-            happy.addSongs([song001]);
-            song002.addTags([other]);
-            sad.addSongs([song003]);
-            song004.addTags([excited]);
-            song005.addTags([happy]);
-            song003.addTags([happy]);
-            allTags = [sad,happy,other,excited];
-
-            happy.forceRemove();
-
-            string placeholder = root.getSongNames();
-        }
+        //--------------------LOAD AND SAVE DATA--------------------
 
         static void LoadData()
         {
             String line;
             try
             {
-                //Pass the file path and file name to the StreamReader constructor
-                StreamReader sr = new StreamReader("C:\\Users\\mdela\\source\\repos\\Music\\Music\\SavedData.txt");
-                //Read the first line of text
+                StreamReader sr = new StreamReader(tagDataPath);
+                
                 line = sr.ReadLine();
-                //Continue to read until you reach end of file
+
+                String[] tagSubtag = line.Split("|");
+                String[] subtags = tagSubtag[1].Split(",");
+                String[] nameColour = [];
+
+                for (int i = 0; i < subtags.Length; i++)
+                {
+                    nameColour = subtags[i].Split("*");
+                    Tag newTag = new Tag(nameColour[0], (Color)new ColorConverter().ConvertFromString(nameColour[1]));
+                    root.addSubtag(newTag);
+                    allTags.Add(newTag);
+                }
+                line = sr.ReadLine();
+                
                 while (line != null)
                 {
-                    //write the line to console window
-                    Console.WriteLine(line);
-                    //Read the next line
+                    tagSubtag = line.Split("|");
+                    Tag parent = null;
+                    
+                    for (int i = 0; i < allTags.Count; i++)
+                    {
+                        if (allTags[i].name == tagSubtag[0])
+                        {
+                            parent = allTags[i];
+                            break;
+                        }
+                    }
+
+                    subtags = tagSubtag[1].Split(",");
+                    for (int i = 0; i < subtags.Length; i++)
+                    {
+                        nameColour = subtags[i].Split("*");
+                        Tag newTag = new Tag(nameColour[0], (Color)new ColorConverter().ConvertFromString(nameColour[1]));
+                        parent.addSubtag(newTag);
+                        allTags.Add(newTag);
+                    }
                     line = sr.ReadLine();
                 }
-                //close the file
+                
                 sr.Close();
                 Console.ReadLine();
+
+                sr = new StreamReader(songDataPath);
+                
+                line = sr.ReadLine();
+
+                readLineSong(line);
+                line = sr.ReadLine();
+                
+                while (line != null){
+                    readLineSong(line);
+         
+                    line = sr.ReadLine();
+                }
+
+                sr.Close();
+                Console.ReadLine();
+
             }
+            
             catch (Exception e)
             {
                 Console.WriteLine("Exception: " + e.Message);
             }
+        }
+
+        static void readLineSong(String line)
+        {
+            String[] parts = line.Split("|");
+            String[] tags = parts[3].Split(",");
+            Tag[] newTags = new Tag[tags.Length];
+
+            for (int i = 0; i < tags.Length; i++)
+            {
+                int num = Convert.ToInt32(tags[i]);
+                newTags[i] = (allTags[num]);
+            }
+
+            Song newSong = new Song(parts[0], parts[1], parts[2]);
+            newSong.addTags(newTags);
+            allSongs.Add(newSong);
+        }
+
+        public static void SaveData()
+        {
+            File.WriteAllText(songDataPath, "");
+            using (StreamWriter writer = new StreamWriter(songDataPath))
+            {
+                for(int i = 0; i < allSongs.Count; i++)
+                {
+                    Song oldSong = allSongs[i];
+                    String line = oldSong.name + "|" + oldSong.artist + "|" + oldSong.filePath + "|";
+                    for(int j = 0; j < oldSong.tags.Count; j++)
+                    {
+                        line += allTags.IndexOf(oldSong.tags[j]) + ",";
+                    }
+                    if (line.EndsWith(","))
+                        line = line.Remove(line.Length-1);
+                    writer.WriteLine(line);
+                }
+            }
+
+            File.WriteAllText(tagDataPath, "");
+            using (StreamWriter writer = new StreamWriter(tagDataPath))
+            {
+
+                tagSaveDataHelper(writer, root);
+
+            }
+        }
+
+        static void tagSaveDataHelper(StreamWriter writer,Tag tag)
+        {
+            String line = tag.name+ "|";
+            for (int i = 0; i < tag.subtags.Count; i++)
+            {
+                line += tag.subtags[i].name + "*" + tag.subtags[i].colour.Name + ",";
+            }
+            if (line.EndsWith(","))
+                line = line.Remove(line.Length - 1);
+            writer.WriteLine(line);
+
+            for (int i = 0; i < tag.subtags.Count; i++)
+            {
+                if (tag.subtags[i].subtags.Count != 0)
+                    tagSaveDataHelper(writer, tag.subtags[i]);
+            }
+        }
+
+        public static String sanitizeText(String text)
+        {
+            text.Replace("|", " ");
+            text.Replace("*", " ");
+            return text;
         }
 
     }
